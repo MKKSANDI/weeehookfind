@@ -32,7 +32,7 @@ python run_weehook_terminal.py
 Scoped scan:
 
 ```powershell
-python run_weehook_terminal.py --path "C:\Users\Public" --threads 6 --max-file-mb 512
+python run_weehook_terminal.py --path "C:\path\to\scan" --threads 6 --max-file-mb 512
 ```
 
 ### Useful flags
