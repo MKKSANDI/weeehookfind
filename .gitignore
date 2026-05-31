@@ -1,0 +1,27 @@
+# .NET / WPF build artifacts
+src/Weehok.App/bin/
+src/Weehok.App/obj/
+*.user
+*.suo
+.vs/
+
+# Rust build artifacts
+src/weehok-scanner/target/
+
+# Local scan output and working files
+findings.txt
+findings-*.txt
+webhook-names.txt
+webhooks-to-delete.txt
+_all_names.json
+
+# Python cache (terminal runner)
+terminal/.venv/
+terminal/__pycache__/
+terminal/*.pyc
+
+# OS and editor noise
+Thumbs.db
+.DS_Store
+.idea/
+.vscode/

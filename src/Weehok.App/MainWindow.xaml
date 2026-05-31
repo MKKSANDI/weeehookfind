@@ -1,0 +1,1109 @@
+<Window x:Class="Weehok.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Weehok"
+        Height="800"
+        Width="1280"
+        MinHeight="720"
+        MinWidth="1120"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="CanResizeWithGrip"
+        Background="Transparent"
+        Loaded="Window_Loaded"
+        PreviewKeyDown="Window_PreviewKeyDown">
+    <Window.Resources>
+        <SolidColorBrush x:Key="WindowBrush" Color="#020407" />
+        <SolidColorBrush x:Key="PanelBrush" Color="#F205070A" />
+        <SolidColorBrush x:Key="PanelBrushAlt" Color="#F7080B10" />
+        <SolidColorBrush x:Key="PanelStroke" Color="#172033" />
+        <SolidColorBrush x:Key="MutedText" Color="#8A95A3" />
+        <SolidColorBrush x:Key="StrongText" Color="#F1F4F7" />
+        <SolidColorBrush x:Key="Accent" Color="#2F6BFF" />
+        <SolidColorBrush x:Key="Danger" Color="#EF4444" />
+
+        <DropShadowEffect x:Key="WindowShadow"
+                          BlurRadius="28"
+                          ShadowDepth="0"
+                          Opacity="0.48"
+                          Color="#000000" />
+
+        <Storyboard x:Key="ScanPulseStoryboard" RepeatBehavior="Forever" AutoReverse="True">
+            <DoubleAnimation Storyboard.TargetName="ActivityGlow"
+                             Storyboard.TargetProperty="Opacity"
+                             From="0.30"
+                             To="1.0"
+                             Duration="0:0:0.75" />
+        </Storyboard>
+
+        <Style x:Key="ChromeButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="34" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Foreground" Value="#C9CED5" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#15171A" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#172033" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="MinHeight" Value="40" />
+            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="Foreground" Value="#EFF3F6" />
+            <Setter Property="Background" Value="#0A0E15" />
+            <Setter Property="BorderBrush" Value="#1B2A44" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="7">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#101827" />
+                                <Setter Property="BorderBrush" Value="#2F6BFF" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#070A10" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.40" />
+                                <Setter Property="Cursor" Value="Arrow" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#0B2B66" />
+            <Setter Property="BorderBrush" Value="#2F6BFF" />
+        </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource StrongText}" />
+            <Setter Property="FontFamily" Value="Segoe UI" />
+        </Style>
+
+        <Style TargetType="GridViewColumnHeader">
+            <Setter Property="Background" Value="#060A10" />
+            <Setter Property="Foreground" Value="#AAB4C2" />
+            <Setter Property="BorderBrush" Value="#172033" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Padding" Value="8,6" />
+        </Style>
+
+        <Style TargetType="ListViewItem">
+            <Setter Property="Foreground" Value="#D6DCE2" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListViewItem">
+                        <Border x:Name="Row"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="#171A1F"
+                                BorderThickness="0,0,0,1">
+                            <GridViewRowPresenter Margin="{TemplateBinding Padding}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Row" Property="Background" Value="#0B1220" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Row" Property="Background" Value="#0D1B33" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ContextMenu">
+            <Setter Property="Background" Value="#080A0D" />
+            <Setter Property="BorderBrush" Value="#242A31" />
+            <Setter Property="Foreground" Value="#D6DCE2" />
+        </Style>
+
+        <Style TargetType="MenuItem">
+            <Setter Property="Foreground" Value="#D6DCE2" />
+            <Setter Property="Background" Value="#080A0D" />
+            <Setter Property="Padding" Value="12,7" />
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="#0D1B33" />
+                    <Setter Property="Foreground" Value="#F1F4F7" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="FieldTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="#050607" />
+            <Setter Property="Foreground" Value="#D6DCE2" />
+            <Setter Property="BorderBrush" Value="#222832" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="CaretBrush" Value="#2F6BFF" />
+        </Style>
+
+        <Style x:Key="FieldPasswordBoxStyle" TargetType="PasswordBox">
+            <Setter Property="Background" Value="#050607" />
+            <Setter Property="Foreground" Value="#D6DCE2" />
+            <Setter Property="BorderBrush" Value="#222832" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="CaretBrush" Value="#2F6BFF" />
+        </Style>
+
+        <Style TargetType="TabControl">
+            <Setter Property="Background" Value="#05070B" />
+            <Setter Property="BorderBrush" Value="#172033" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="#D6DCE2" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabControl">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TabPanel x:Name="HeaderPanel"
+                                      Margin="8,8,8,0"
+                                      IsItemsHost="True"
+                                      KeyboardNavigation.TabIndex="1"
+                                      Background="Transparent" />
+                            <Border Grid.Row="1"
+                                    Margin="0,7,0,0"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="7">
+                                <ContentPresenter x:Name="PART_SelectedContentHost"
+                                                  Margin="0"
+                                                  ContentSource="SelectedContent" />
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="TabItem">
+            <Setter Property="Foreground" Value="#8F99A3" />
+            <Setter Property="Background" Value="#070B12" />
+            <Setter Property="BorderBrush" Value="#172033" />
+            <Setter Property="Padding" Value="16,9" />
+            <Setter Property="Margin" Value="0,0,7,0" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="TabShell"
+                                MinWidth="116"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="6">
+                            <Grid>
+                                <ContentPresenter ContentSource="Header"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Margin="{TemplateBinding Padding}" />
+                                <Border x:Name="ActiveLine"
+                                        Height="2"
+                                        Background="{StaticResource Accent}"
+                                        VerticalAlignment="Bottom"
+                                        Margin="9,0,9,0"
+                                        Opacity="0" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabShell" Property="Background" Value="#0B1220" />
+                                <Setter Property="Foreground" Value="#C9D0D8" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabShell" Property="Background" Value="#0D1B33" />
+                                <Setter TargetName="TabShell" Property="BorderBrush" Value="#2F6BFF" />
+                                <Setter TargetName="ActiveLine" Property="Opacity" Value="1" />
+                                <Setter Property="Foreground" Value="#F1F4F7" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ListBoxItem">
+            <Setter Property="Foreground" Value="#D6DCE2" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Row"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="6">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Row" Property="Background" Value="#0B1220" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Row" Property="Background" Value="#0D1B33" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Opacity="0" x:Name="RootVisual">
+        <Border CornerRadius="12"
+                Background="{StaticResource WindowBrush}"
+                BorderBrush="#1E2328"
+                BorderThickness="1"
+                Effect="{StaticResource WindowShadow}">
+            <Grid Margin="18">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="56" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="190" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="40"
+                                Height="40"
+                                CornerRadius="8"
+                                Background="#080A0D"
+                                BorderBrush="#172033"
+                                BorderThickness="1">
+                            <Image Source="logo.png"
+                                   Width="28"
+                                   Height="28"
+                                   Stretch="Uniform"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Weehok" FontSize="22" FontWeight="SemiBold" />
+                            <TextBlock Text="Webhook IOC scanner"
+                                       Foreground="{StaticResource MutedText}"
+                                       FontSize="12" />
+                        </StackPanel>
+
+                        <Border Margin="22,0,0,0"
+                                Padding="10,6"
+                                CornerRadius="6"
+                                Background="#080A0D"
+                                BorderBrush="#1B2A44"
+                                BorderThickness="1">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse x:Name="StatusDot"
+                                         Width="7"
+                                         Height="7"
+                                         Fill="#59616B"
+                                         Margin="0,0,8,0" />
+                                <TextBlock x:Name="StatusText"
+                                           Text="Idle"
+                                           Foreground="#C4CAD2"
+                                           FontSize="12"
+                                           FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Margin="10,0,0,0"
+                                Padding="10,6"
+                                CornerRadius="6"
+                                Background="#080A0D"
+                                BorderBrush="#1B2A44"
+                                BorderThickness="1">
+                            <TextBlock x:Name="ElevationText"
+                                       Text="ADMIN TOKEN"
+                                       Foreground="#2F6BFF"
+                                       FontSize="12"
+                                       FontWeight="SemiBold" />
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                        <Button Content="_"
+                                Style="{StaticResource ChromeButtonStyle}"
+                                Click="Minimize_Click" />
+                        <Button Content="X"
+                                Margin="6,0,0,0"
+                                Style="{StaticResource ChromeButtonStyle}"
+                                Click="Close_Click" />
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Row="1" Margin="0,8,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="304" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Background="{StaticResource PanelBrush}"
+                            BorderBrush="{StaticResource PanelStroke}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="16">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0">
+                                <TextBlock Text="Target"
+                                           FontSize="11"
+                                           Foreground="{StaticResource MutedText}"
+                                           FontWeight="SemiBold" />
+                                <Border Margin="0,9,0,0"
+                                        Padding="12"
+                                        CornerRadius="7"
+                                        Background="{StaticResource PanelBrushAlt}"
+                                        BorderBrush="#202429"
+                                        BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="All mounted drives"
+                                                   FontSize="15"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock x:Name="OutputPathText"
+                                                   Margin="0,4,0,0"
+                                                   Foreground="{StaticResource MutedText}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   FontSize="12" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <Grid Grid.Row="1" Margin="0,14,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Background="{StaticResource PanelBrushAlt}" CornerRadius="7" Padding="12" BorderBrush="#191D22" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="Queued" Foreground="{StaticResource MutedText}" FontSize="11" FontWeight="SemiBold" />
+                                        <TextBlock x:Name="QueuedText" Text="0" FontSize="23" FontWeight="SemiBold" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="2" Background="{StaticResource PanelBrushAlt}" CornerRadius="7" Padding="12" BorderBrush="#191D22" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="Scanned" Foreground="{StaticResource MutedText}" FontSize="11" FontWeight="SemiBold" />
+                                        <TextBlock x:Name="ScannedText" Text="0" FontSize="23" FontWeight="SemiBold" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <Grid Grid.Row="2" Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Background="{StaticResource PanelBrushAlt}" CornerRadius="7" Padding="12" BorderBrush="#191D22" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="Webhooks" Foreground="{StaticResource MutedText}" FontSize="11" FontWeight="SemiBold" />
+                                        <TextBlock x:Name="FindingsText" Text="0" FontSize="23" FontWeight="SemiBold" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="2" Background="{StaticResource PanelBrushAlt}" CornerRadius="7" Padding="12" BorderBrush="#191D22" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="Read" Foreground="{StaticResource MutedText}" FontSize="11" FontWeight="SemiBold" />
+                                        <TextBlock x:Name="BytesText" Text="0 B" FontSize="23" FontWeight="SemiBold" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <Border Grid.Row="3"
+                                    Margin="0,14,0,0"
+                                    Background="{StaticResource PanelBrushAlt}"
+                                    BorderBrush="#191D22"
+                                    BorderThickness="1"
+                                    CornerRadius="7"
+                                    Padding="14">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="12" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Scan profile"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource MutedText}" />
+                                        <TextBlock Grid.Column="1"
+                                                   Text="Elevated"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="#2F6BFF" />
+                                    </Grid>
+                                    <Border Grid.Row="2" Height="6" CornerRadius="3" Background="#080C13">
+                                        <Border x:Name="ActivityGlow"
+                                                Width="86"
+                                                HorizontalAlignment="Left"
+                                                CornerRadius="3"
+                                                Opacity="0.30"
+                                                Background="{StaticResource Accent}" />
+                                    </Border>
+                                    <StackPanel Grid.Row="3" Margin="0,16,0,0">
+                                        <TextBlock Text="Deep filesystem sweep"
+                                                   FontSize="18"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Text="No size cap. Low-priority worker pool."
+                                                   Margin="0,6,0,0"
+                                                   Foreground="{StaticResource MutedText}"
+                                                   FontSize="12"
+                                                   TextWrapping="Wrap" />
+                                        <TextBlock Text="Backup, restore, and security privileges."
+                                                   Margin="0,4,0,0"
+                                                   Foreground="{StaticResource MutedText}"
+                                                   FontSize="12"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <StackPanel Grid.Row="4">
+                                <Button x:Name="StartButton"
+                                        Content="Start elevated deep scan"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        Click="StartScan_Click" />
+                                <Button x:Name="StopButton"
+                                        Content="Stop scan"
+                                        Margin="0,8,0,0"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        IsEnabled="False"
+                                        Click="StopScan_Click" />
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Button x:Name="OpenFindingsButton"
+                                            Content="Open report"
+                                            Style="{StaticResource ActionButtonStyle}"
+                                            Click="OpenFindings_Click" />
+                                    <Button Grid.Column="2"
+                                            Content="Open folder"
+                                            Style="{StaticResource ActionButtonStyle}"
+                                            Click="OpenFolder_Click" />
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2"
+                            Background="{StaticResource PanelBrush}"
+                            BorderBrush="{StaticResource PanelStroke}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="16">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Grid Grid.Row="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Webhook findings"
+                                               FontSize="20"
+                                               FontWeight="SemiBold" />
+                                    <TextBlock x:Name="DetailStatusText"
+                                               Text="Ready to scan every mounted drive."
+                                               Foreground="{StaticResource MutedText}"
+                                               FontSize="12" />
+                                </StackPanel>
+                                <TextBlock Grid.Column="1"
+                                           x:Name="ErrorsText"
+                                           Text="0 errors, 0 skipped"
+                                           Foreground="{StaticResource MutedText}"
+                                           VerticalAlignment="Center"
+                                           FontSize="12" />
+                                <ProgressBar Grid.Row="2"
+                                             Grid.ColumnSpan="2"
+                                             x:Name="ScanProgress"
+                                             Height="8"
+                                             Minimum="0"
+                                             Maximum="100"
+                                             Value="0"
+                                             Background="#080C13"
+                                             BorderBrush="#172033">
+                                    <ProgressBar.Foreground>
+                                        <SolidColorBrush Color="#2F6BFF" />
+                                    </ProgressBar.Foreground>
+                                </ProgressBar>
+                            </Grid>
+
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="280" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="ResultsSearchBox"
+                                         Style="{StaticResource FieldTextBoxStyle}"
+                                         TextChanged="ResultsSearchBox_TextChanged"
+                                         ToolTip="Filter visible findings"
+                                         VerticalContentAlignment="Center" />
+                                <TextBlock Grid.Column="2"
+                                           x:Name="ResultsSummaryText"
+                                           Text="0 webhooks, 0 raw webhook hits"
+                                           Foreground="{StaticResource MutedText}"
+                                           FontSize="12"
+                                           VerticalAlignment="Center" />
+                                <Button Grid.Column="4"
+                                        Content="AI analyse"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Click="GoToAiTab_Click" />
+                            </Grid>
+
+                            <TabControl Grid.Row="4"
+                                        x:Name="ResultsTabs">
+                                <TabItem Header="Webhooks">
+                                    <ListBox x:Name="WebhookGroupsList"
+                                             Margin="8"
+                                             Background="#05070B"
+                                             BorderThickness="0"
+                                             Foreground="#D6DCE2"
+                                             SelectionMode="Extended"
+                                             PreviewMouseRightButtonDown="ResultsList_PreviewMouseRightButtonDown"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                             ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                        <ListBox.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Copy" Click="CopySelected_Click" />
+                                                <MenuItem Header="Copy all" Click="CopyAll_Click" />
+                                                <Separator />
+                                                <MenuItem Header="Open file location" Click="OpenFileLocation_Click" />
+                                            </ContextMenu>
+                                        </ListBox.ContextMenu>
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Background="#090B0E"
+                                                            BorderBrush="#1C2228"
+                                                            BorderThickness="1"
+                                                            CornerRadius="6"
+                                                            Padding="10"
+                                                            Margin="0,0,0,8">
+                                                        <Expander Foreground="#D6DCE2">
+                                                            <Expander.Header>
+                                                                    <Grid MinWidth="760">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="44" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="120" />
+                                                                        <ColumnDefinition Width="150" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <Border Width="34"
+                                                                            Height="34"
+                                                                            CornerRadius="6"
+                                                                            Background="#0B1220"
+                                                                            BorderBrush="#172033"
+                                                                            BorderThickness="1">
+                                                                        <Image Source="{Binding AvatarUri}"
+                                                                               Width="30"
+                                                                               Height="30"
+                                                                               Stretch="UniformToFill" />
+                                                                    </Border>
+                                                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                                        <TextBlock Text="{Binding DisplayName}"
+                                                                                   FontSize="14"
+                                                                                   FontWeight="SemiBold"
+                                                                                   Foreground="#F1F4F7" />
+                                                                        <TextBlock Text="{Binding RedactedWebhook}"
+                                                                                   FontFamily="Consolas"
+                                                                                   FontSize="12"
+                                                                                   Foreground="#8D96A0"
+                                                                                   TextTrimming="CharacterEllipsis" />
+                                                                    </StackPanel>
+                                                                    <TextBlock Grid.Column="2"
+                                                                               Text="{Binding CountLabel}"
+                                                                               VerticalAlignment="Center"
+                                                                               Foreground="#C9D0D8"
+                                                                               FontWeight="SemiBold" />
+                                                                    <TextBlock Grid.Column="3"
+                                                                               Text="{Binding ThreatLabel}"
+                                                                               VerticalAlignment="Center"
+                                                                               Foreground="{Binding ThreatBrush}"
+                                                                               FontWeight="SemiBold"
+                                                                               TextTrimming="CharacterEllipsis" />
+                                                                </Grid>
+                                                            </Expander.Header>
+                                                            <ItemsControl ItemsSource="{Binding Locations}" Margin="0,10,0,0">
+                                                                <ItemsControl.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBlock Text="{Binding Display}"
+                                                                                   FontFamily="Consolas"
+                                                                                   FontSize="12"
+                                                                                   Foreground="#AAB3BD"
+                                                                                   TextWrapping="Wrap"
+                                                                                   Margin="0,0,0,6">
+                                                                            <TextBlock.ContextMenu>
+                                                                                <ContextMenu>
+                                                                                    <MenuItem Header="Copy" Click="CopyLocation_Click" />
+                                                                                    <MenuItem Header="Open file location" Click="OpenLocation_Click" />
+                                                                                </ContextMenu>
+                                                                            </TextBlock.ContextMenu>
+                                                                        </TextBlock>
+                                                                    </DataTemplate>
+                                                                </ItemsControl.ItemTemplate>
+                                                            </ItemsControl>
+                                                        </Expander>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                </TabItem>
+
+                                <TabItem Header="Context" Visibility="Collapsed">
+                                    <ListView x:Name="ThreatsList"
+                                              Background="#05070B"
+                                              BorderThickness="0"
+                                              Foreground="#D6DCE2"
+                                              PreviewMouseRightButtonDown="ResultsList_PreviewMouseRightButtonDown"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                              ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                        <ListView.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Copy" Click="CopySelected_Click" />
+                                                <MenuItem Header="Copy all" Click="CopyAll_Click" />
+                                                <Separator />
+                                                <MenuItem Header="Open file location" Click="OpenFileLocation_Click" />
+                                            </ContextMenu>
+                                        </ListView.ContextMenu>
+                                        <ListView.View>
+                                            <GridView>
+                                                <GridViewColumn Header="Label" Width="165" DisplayMemberBinding="{Binding Label}" />
+                                                <GridViewColumn Header="Score" Width="70" DisplayMemberBinding="{Binding Score}" />
+                                                <GridViewColumn Header="Source" Width="95" DisplayMemberBinding="{Binding Source}" />
+                                                <GridViewColumn Header="Reasons" Width="360" DisplayMemberBinding="{Binding Reasons}" />
+                                                <GridViewColumn Header="Location" Width="500" DisplayMemberBinding="{Binding Path}" />
+                                            </GridView>
+                                        </ListView.View>
+                                    </ListView>
+                                </TabItem>
+
+                                <TabItem Header="Raw webhook hits">
+                                    <ListView x:Name="FindingsList"
+                                              Background="#05070B"
+                                              BorderThickness="0"
+                                              Foreground="#D6DCE2"
+                                              PreviewMouseRightButtonDown="ResultsList_PreviewMouseRightButtonDown"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                              ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                        <ListView.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Copy" Click="CopySelected_Click" />
+                                                <MenuItem Header="Copy all" Click="CopyAll_Click" />
+                                                <Separator />
+                                                <MenuItem Header="Open file location" Click="OpenFileLocation_Click" />
+                                            </ContextMenu>
+                                        </ListView.ContextMenu>
+                                        <ListView.View>
+                                            <GridView>
+                                                <GridViewColumn Header="Confidence" Width="100" DisplayMemberBinding="{Binding Confidence}" />
+                                                <GridViewColumn Header="Source" Width="85" DisplayMemberBinding="{Binding Source}" />
+                                                <GridViewColumn Header="Method" Width="190" DisplayMemberBinding="{Binding Method}" />
+                                                <GridViewColumn Header="Evidence" Width="310" DisplayMemberBinding="{Binding Evidence}" />
+                                                <GridViewColumn Header="Path" Width="510" DisplayMemberBinding="{Binding Path}" />
+                                            </GridView>
+                                        </ListView.View>
+                                    </ListView>
+                                </TabItem>
+
+                                <TabItem Header="File/folder scan">
+                                    <Grid Margin="10">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="10" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Border Background="#070B12"
+                                                BorderBrush="#172033"
+                                                BorderThickness="1"
+                                                CornerRadius="7"
+                                                Padding="14"
+                                                AllowDrop="True"
+                                                DragOver="CustomTarget_DragOver"
+                                                Drop="CustomTarget_Drop">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="10" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="10" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Text="Scoped deep scan"
+                                                                   FontWeight="SemiBold"
+                                                                   FontSize="13" />
+                                                        <TextBlock x:Name="CustomTargetTypeText"
+                                                                   Margin="0,4,0,0"
+                                                                   Text="No target selected"
+                                                                   Foreground="{StaticResource MutedText}"
+                                                                   FontSize="12" />
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1"
+                                                                Orientation="Horizontal">
+                                                        <Button x:Name="ChooseCustomFileButton"
+                                                                Content="Choose file"
+                                                                Style="{StaticResource ActionButtonStyle}"
+                                                                Click="ChooseCustomFile_Click" />
+                                                        <Button x:Name="ChooseCustomFolderButton"
+                                                                Margin="8,0,0,0"
+                                                                Content="Choose folder"
+                                                                Style="{StaticResource ActionButtonStyle}"
+                                                                Click="ChooseCustomFolder_Click" />
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <TextBox Grid.Row="2"
+                                                         x:Name="CustomTargetBox"
+                                                         Style="{StaticResource FieldTextBoxStyle}"
+                                                         IsReadOnly="True"
+                                                         AllowDrop="True"
+                                                         DragOver="CustomTarget_DragOver"
+                                                         Drop="CustomTarget_Drop"
+                                                         VerticalContentAlignment="Center" />
+
+                                                <Grid Grid.Row="4">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <CheckBox x:Name="CustomRuntimeCheckBox"
+                                                                  Content="Include live memory/network snapshots"
+                                                                  Foreground="#C9D0D8"
+                                                                  IsChecked="False" />
+                                                        <TextBlock x:Name="CustomTargetStatusText"
+                                                                   Margin="0,8,0,0"
+                                                                   Text="Select a file/folder or drop it here."
+                                                                   Foreground="{StaticResource MutedText}"
+                                                                   FontSize="12" />
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1"
+                                                                Orientation="Horizontal"
+                                                                VerticalAlignment="Bottom">
+                                                        <Button Content="Open target"
+                                                                Style="{StaticResource ActionButtonStyle}"
+                                                                Click="OpenCustomTarget_Click" />
+                                                        <Button Margin="8,0,0,0"
+                                                                Content="Clear"
+                                                                Style="{StaticResource ActionButtonStyle}"
+                                                                Click="ClearCustomTarget_Click" />
+                                                        <Button x:Name="CustomScanButton"
+                                                                Margin="8,0,0,0"
+                                                                Content="Scan target"
+                                                                Style="{StaticResource PrimaryButtonStyle}"
+                                                                Click="StartCustomScan_Click" />
+                                                        <Button Margin="8,0,0,0"
+                                                                Content="AI analyse"
+                                                                Style="{StaticResource ActionButtonStyle}"
+                                                                Click="CustomAiAnalyze_Click" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+
+                                    </Grid>
+                                </TabItem>
+
+                                <TabItem Header="AI">
+                                    <Grid Margin="10">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="10" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Border x:Name="AiKeyPanel"
+                                                Background="#070B12"
+                                                BorderBrush="#172033"
+                                                BorderThickness="1"
+                                                CornerRadius="7"
+                                                Padding="14">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="10" />
+                                                    <ColumnDefinition Width="150" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="Gemini API key"
+                                                               FontWeight="SemiBold"
+                                                               FontSize="13" />
+                                                    <PasswordBox x:Name="GeminiKeyBox"
+                                                                 Margin="0,8,0,0"
+                                                                 Style="{StaticResource FieldPasswordBoxStyle}" />
+                                                    <TextBlock x:Name="AiStatusText"
+                                                               Margin="0,8,0,0"
+                                                               Text="Key is kept in memory for this app session."
+                                                               Foreground="{StaticResource MutedText}"
+                                                               FontSize="12" />
+                                                </StackPanel>
+                                                <Button Grid.Column="2"
+                                                        Content="Unlock AI"
+                                                        Style="{StaticResource PrimaryButtonStyle}"
+                                                        VerticalAlignment="Bottom"
+                                                        Click="SaveGeminiKey_Click" />
+                                            </Grid>
+                                        </Border>
+
+                                        <Grid x:Name="AiWorkspace"
+                                              Grid.Row="2"
+                                              Visibility="Collapsed">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="340" />
+                                                <ColumnDefinition Width="10" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Background="#070B12"
+                                                    BorderBrush="#172033"
+                                                    BorderThickness="1"
+                                                    CornerRadius="7"
+                                                    Padding="12">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="10" />
+                                                        <RowDefinition Height="*" />
+                                                        <RowDefinition Height="10" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Text="Webhook history"
+                                                                   FontWeight="SemiBold"
+                                                                   FontSize="13" />
+                                                        <TextBlock x:Name="AiHistorySummaryText"
+                                                                   Margin="0,4,0,0"
+                                                                   Text="No findings loaded"
+                                                                   Foreground="{StaticResource MutedText}"
+                                                                   FontSize="12" />
+                                                    </StackPanel>
+
+                                                    <ListView Grid.Row="2"
+                                                              x:Name="AiHistoryList"
+                                                              Background="#05070B"
+                                                              BorderBrush="#111827"
+                                                              BorderThickness="1"
+                                                              Foreground="#D6DCE2"
+                                                              PreviewMouseRightButtonDown="ResultsList_PreviewMouseRightButtonDown"
+                                                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                                              ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                                        <ListView.ContextMenu>
+                                                            <ContextMenu>
+                                                                <MenuItem Header="Copy" Click="CopySelected_Click" />
+                                                                <MenuItem Header="Copy all" Click="CopyAll_Click" />
+                                                                <Separator />
+                                                                <MenuItem Header="Open file location" Click="OpenFileLocation_Click" />
+                                                            </ContextMenu>
+                                                        </ListView.ContextMenu>
+                                                        <ListView.View>
+                                                            <GridView>
+                                                                <GridViewColumn Header="Label" Width="138" DisplayMemberBinding="{Binding Label}" />
+                                                                <GridViewColumn Header="Score" Width="58" DisplayMemberBinding="{Binding Score}" />
+                                                                <GridViewColumn Header="Location" Width="360" DisplayMemberBinding="{Binding Location}" />
+                                                            </GridView>
+                                                        </ListView.View>
+                                                    </ListView>
+
+                                                    <Grid Grid.Row="4">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="8" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Button x:Name="AiAnalyzeButton"
+                                                                Content="AI analyse"
+                                                                Style="{StaticResource PrimaryButtonStyle}"
+                                                                Click="AiAnalyze_Click" />
+                                                        <Button Grid.Column="2"
+                                                                Content="Change key"
+                                                                Style="{StaticResource ActionButtonStyle}"
+                                                                Click="ChangeGeminiKey_Click" />
+                                                    </Grid>
+                                                </Grid>
+                                            </Border>
+
+                                            <Border Grid.Column="2"
+                                                    Background="#070B12"
+                                                    BorderBrush="#172033"
+                                                    BorderThickness="1"
+                                                    CornerRadius="7"
+                                                    Padding="12">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="10" />
+                                                        <RowDefinition Height="*" />
+                                                    </Grid.RowDefinitions>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Text="AI report"
+                                                                   FontWeight="SemiBold"
+                                                                   FontSize="13" />
+                                                        <Button Grid.Column="1"
+                                                                Content="Copy report"
+                                                                Style="{StaticResource ActionButtonStyle}"
+                                                                Click="CopyAiReport_Click" />
+                                                    </Grid>
+                                                    <RichTextBox Grid.Row="2"
+                                                                 x:Name="AiReportBox"
+                                                                 Background="#05070B"
+                                                                 Foreground="#D6DCE2"
+                                                                 BorderBrush="#151A20"
+                                                                 BorderThickness="1"
+                                                                 Padding="12"
+                                                                 IsReadOnly="True"
+                                                                 VerticalScrollBarVisibility="Auto" />
+                                                </Grid>
+                                            </Border>
+                                        </Grid>
+                                    </Grid>
+                                </TabItem>
+                            </TabControl>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Border Grid.Row="2"
+                        Background="#F2050607"
+                        BorderBrush="#172033"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="14">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Console"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="#D6DCE2" />
+                            <TextBlock Grid.Column="1"
+                                       Text="scanner stdout"
+                                       FontSize="12"
+                                       Foreground="{StaticResource MutedText}" />
+                        </Grid>
+                        <TextBox Grid.Row="1"
+                                 x:Name="ConsoleBox"
+                                 Margin="0,10,0,0"
+                                 Background="#030405"
+                                 Foreground="#AAB3BD"
+                                 BorderBrush="#15191E"
+                                 BorderThickness="1"
+                                 FontFamily="Consolas"
+                                 FontSize="12"
+                                 IsReadOnly="True"
+                                 TextWrapping="NoWrap"
+                                 VerticalScrollBarVisibility="Auto"
+                                 HorizontalScrollBarVisibility="Auto"
+                                 CaretBrush="#2F6BFF">
+                            <TextBox.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Copy" Command="ApplicationCommands.Copy" />
+                                    <MenuItem Header="Select all" Command="ApplicationCommands.SelectAll" />
+                                </ContextMenu>
+                            </TextBox.ContextMenu>
+                        </TextBox>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
