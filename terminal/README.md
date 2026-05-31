@@ -17,7 +17,7 @@ It keeps the original Rust scanner behavior but adds:
 ## Setup
 
 ```powershell
-cd "D:\Moved From C\Desktop\Projects\Weeehookfind\terminal"
+cd terminal
 python -m pip install -r requirements.txt
 ```
 
@@ -32,7 +32,7 @@ python run_weehook_terminal.py
 Scoped scan:
 
 ```powershell
-python run_weehook_terminal.py --path "C:\Users" --threads 6 --max-file-mb 512
+python run_weehook_terminal.py --path "C:\Users\Public" --threads 6 --max-file-mb 512
 ```
 
 ### Useful flags
